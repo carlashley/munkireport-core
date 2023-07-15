@@ -109,17 +109,16 @@ def assetcachemanagerutil(*args, **kwargs) -> dict[str, Any]:
     return _return(p, "json", **kwargs)
 
 
-@_default_subprocess_kwargs(stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8")
-def codesign(_as_object: bool = True, *args, **kwargs) -> subprocess.CompletedProcess:
+@_default_subprocess_kwargs(capture_output=True, encoding="utf-8")
+def codesign(*args, **kwargs) -> subprocess.CompletedProcess:
     """Wrapper around the system binary 'codesign'.
     Note: this binary returns some information on stdout and other information on stderr, so this
           will always return a subprocess.CompletedProcess object for further parsing data from.
     :param *args: arguments passed on to the wrapped command
     :param **kwargs: arguments passed on to the subprocess call"""
     cmd = ["/usr/bin/codesign", *args]
-    p = subprocess.run(cmd, **kwargs)
 
-    return _return(p, **kwargs)
+    return subprocess.run(cmd, **kwargs)
 
 
 @_default_subprocess_kwargs(capture_output=True, encoding="utf-8")
