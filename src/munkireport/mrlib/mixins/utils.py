@@ -13,58 +13,6 @@ class UtilsMixin:
         :param b: boolean value"""
         return 1 if b else 0
 
-    def clean_dict(self, d: MutableMapping[Any, Any]) -> dict[Any, Any]:
-        """Cleans out 'None' values in a dictionary.
-        :param d: dictionary object to clean"""
-        result = {}
-
-        for k, v in d.items():
-            if isinstance(v, dict):
-                new_v = self.clean_dict(d=v)
-
-                if len(new_v) > 0:
-                    result[k] = new_v
-            elif isinstance(v, list):
-                new_v = []
-
-                for elem in v:
-                    if isinstance(elem, dict):
-                        new_d = self.clean_dict(d=elem)
-
-                        if len(new_d) > 0:
-                            new_v.append(new_d)
-                    elif elem is not None and not elem == "":
-                        new_v.append(elem)
-                result[k] = new_v
-            elif isinstance(v, tuple):
-                new_t = []
-
-                for elem in v:
-                    if isinstance(elem, dict):
-                        new_d = self.clean_dict(d=elem)
-
-                        if len(new_d) > 0:
-                            new_t.append(new_d)
-                    elif elem is not None and not elem == "":
-                        new_t.append(elem)
-                result[k] = tuple(new_t)
-            elif isinstance(v, set):
-                new_s = set()
-
-                for elem in v:
-                    if isinstance(elem, dict):
-                        new_d = self.clean_dict(d=elem)
-
-                        if len(new_d) > 0:
-                            new_s.append(new_d)
-                    elif elem is not None and not elem == "":
-                        new_s.add(elem)
-                result[k] = new_s
-            elif not isinstance(v, (dict, list, tuple, set)) and v is not None or not v == "":
-                result[k] = v
-
-        return result
-
     def flat_dict(self, d: MutableMapping[Any, Any], sep: str = ".", parent: str = "") -> dict[Any, Any]:
         """Return a flat dictionary. Sub keys are merged with parent key and separated with the
         provided separator string value to avoid key name collisions.
@@ -92,20 +40,29 @@ class UtilsMixin:
 
         return result
 
-    def read_plist(self, fp: Path, _mode: str = "rb") -> MutableMapping[Any, Any]:
+    def read_plist(self, fp: Path, _mode: str = "rb", **kwargs) -> MutableMapping[Any, Any]:
         """Convenience function for reading property list files.
-        :param fp: file path object"""
+        :param fp: file path object
+        :param **kwargs: additional arguments to pass on to the plistlib call"""
         with fp.open(_mode) as f:
             return plistlib.load(f)
 
-    def read_plist_string(self, b: bytes) -> MutableMapping[Any, Any]:
+    def read_plist_string(self, b: bytes, **kwargs) -> MutableMapping[Any, Any]:
         """Convenience function for reading property list data from a bytestring.
-        :param b"""
-        return plistlib.loads(b)
+        :param b
+        :param **kwargs: additional arguments to pass on to the plistlib call"""
+        return plistlib.loads(b, **kwargs)
 
-    def write_plist(self, d: Mapping[Any, Any], fp: Path, _mode: str = "wb") -> None:
+    def write_plist(self, d: Mapping[Any, Any], fp: Path, _mode: str = "wb", **kwargs) -> None:
         """Convenience function for writing property list files.
+        Note: when writing a property list file as an XML format property list (default behaviour),
+              the 'plistlib.dump' method will raise a 'TypeError' if _any_ value is 'None' or contains 'None',
+              for example, a list with a 'None' value will raise this error just as a key with a 'None' value;
+              the binary property list format does not share the same limitation. Forcing the 'plistlib.dump'
+              method to output a binary property list file is achieved by using the 'fmt=plistlib.FMT_BINARY'
+              parameter.
         :param d: mapping object to write (for example, a dictionary)
-        :param fp: file path object"""
+        :param fp: file path object
+        :param **kwargs: additional arguments to pass on to the plistlib call"""
         with fp.open(_mode) as f:
-            return plistlib.dump(f)
+            return plistlib.dump(d, f, **kwargs)
