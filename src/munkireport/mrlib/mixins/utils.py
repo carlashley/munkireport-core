@@ -2,16 +2,34 @@ import plistlib
 
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Mapping, MutableMapping
+from typing import Any, Mapping, MutableMapping, Optional
 
 
 class UtilsMixin:
     """A mixin for various utilities."""
 
+    def _get_system_profiler_localisation(self, report: str, fn: str = "Localizable.loctable") -> Path:
+        """Get a system profiler localisation file based on a report name.
+        :param report: report name; for example 'SPDisplaysReporter.spreporter'"""
+        base, sufx = Path("/System/Library/SystemProfiler/"), "Contents/Resources"
+        fn = f"{self.locale}.lproj" if self.os_version <= self.str2vers("13.0") else fn
+
+        return base.joinpath(report, sufx, fn)
+
     def bool2int(self, b: bool) -> int:
         """Convert a boolean to 1 (True) or 0 (False).
         :param b: boolean value"""
         return 1 if b else 0
+
+    def read_system_profiler_localisation(self, r: str, **kwargs) -> Optional[Mapping]:
+        """Read a system profiler localisation file if it exists and return the mapping object.
+        :param r: report name; for example 'SPDisplaysReporter.spreporter'
+        :param **kwargs: additional arguments to pass on to the plistlib call"""
+        fp = self._get_system_profiler_localisation(r)
+        print(fp)
+
+        if fp.exists():
+            return self.read_plist(fp, **kwargs)
 
     def flat_dict(self, d: MutableMapping[Any, Any], sep: str = ".", parent: str = "") -> dict[Any, Any]:
         """Return a flat dictionary. Sub keys are merged with parent key and separated with the
