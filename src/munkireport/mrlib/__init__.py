@@ -4,7 +4,7 @@ from pathlib import Path
 from .mixins.reports import ReportWriterMixin
 from .mixins.systeminfo import SystemAttrsMixin
 from .mixins.utils import UtilsMixin
-from .mixins.versons import VersioningMixin
+from .mixins.versions import VersioningMixin
 
 __title__ = "mrlib"
 __summary__ = "munkireport-core package for munkireport"
