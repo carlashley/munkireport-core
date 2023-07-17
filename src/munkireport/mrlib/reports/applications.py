@@ -47,8 +47,7 @@ class ApplicationsReport(MunkiReport):
         return 0
 
     def report_data(self) -> Optional[Iterable[Mapping]]:
-        """Parses the output of the system_profiler with respect to the specified data type.
-        :param dt: data type string to pass to the system_profiler call"""
+        """Parses the output of the system_profiler with respect to the specified data type."""
         result = []
         dt = "SPApplicationsDataType"
         applications = system_profiler(dt).get(dt, [])
