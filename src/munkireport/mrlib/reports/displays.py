@@ -170,6 +170,9 @@ class DisplaysReport(MunkiReport):
 
                 # Construct the object to return in the results
                 for key, val in display.items():
+                    if isinstance(val, str):
+                        val = val.strip()
+
                     if key in self._SP_DISPLAYS_ATTRS_MAP:
                         if val in self._SP_DISPLAY_ATTRS_BOOL_TRUE:
                             val = 1
