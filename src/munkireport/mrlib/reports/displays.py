@@ -44,7 +44,7 @@ class DisplaysReport(MunkiReport):
         "spdisplays_displayport_current_bandwidth": "dp_current_bandwidth",
         "spdisplays_displayport_current_lanes": "dp_current_lanes",
         "spdisplays_displayport_current_spread": "dp_current_spread",
-        "spdisplays_displayport_dpcd_version": "dp_dpcd_current_version",
+        "spdisplays_displayport_dpcd_version": "dp_dpcd_version",
         "spdisplays_displayport_hdcp_capability": "dp_hdcp_capability",
         "spdisplays_displayport_max_bandwidth": "dp_max_bandwidth",
         "spdisplays_displayport_max_lanes": "dp_max_lanes",
@@ -111,9 +111,7 @@ class DisplaysReport(MunkiReport):
         :param d: mapped object with display info."""
         _vendor_id = d.get("_spdisplays_display-vendor-id")
         is_virtual = (
-            _vendor_id in self._VIRTUAL_VENDORS
-            if _vendor_id
-            else False or d.get("_spdisplays_virtualdevice", False)
+            _vendor_id in self._VIRTUAL_VENDORS if _vendor_id else False or d.get("_spdisplays_virtualdevice", False)
         )
         vendor_id = "Virtual Display" if _vendor_id and _vendor_id == self._VIRTUAL_VENDORS[0] else _vendor_id
 
