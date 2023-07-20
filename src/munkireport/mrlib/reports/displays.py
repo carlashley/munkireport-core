@@ -96,7 +96,8 @@ class DisplaysReport(MunkiReport):
         mfg_week = d.get("_spdisplays_display-week")
         mfg_year = d.get("_spdisplays_display-year")
 
-        if mfg_week in ["255", "0"]:
+        # Note, Apple does return 0 for week and year in some circumstances
+        if mfg_week in ["255", "0"] and not mfg_year == "0":
             return f"{mfg_year} Model"
 
         return f"{mfg_year}-{mfg_week}"
@@ -116,6 +117,11 @@ class DisplaysReport(MunkiReport):
         vendor_id = "Virtual Display" if _vendor_id and _vendor_id == self._VIRTUAL_VENDORS[0] else _vendor_id
 
         return (is_virtual, vendor_id)
+
+    def _is_retina(self, d: Mapping[Any, Any]) -> bool:
+        """Return a boolean indication of whether the display is Retina capable (True) or not (False).
+        :param d: mapping object containing data to parse"""
+        return any("retina" in d.get(k, "").lower() for k in self._RETINA_KEYS)
 
     def _parse_display_data(self, d: Mapping[Any, Any]) -> Mapping[Any, Any]:
         """Merges data from the '_spdisplays_displayport_device' object in any 'spdisplays_ndrvs' object.
@@ -142,7 +148,7 @@ class DisplaysReport(MunkiReport):
         result["virtual_device"], result["vendor"] = self._parse_virutal_display_and_vendor_id(result)
 
         # Retina supported
-        result["retina"] = any("retina" in result.get(k, "") for k in self._RETINA_KEYS)
+        result["retina"] = self._is_retina(result)
 
         # Insert a manufactured date
         result["manufactured"] = self._parse_mfg_value(result)
@@ -181,6 +187,6 @@ class DisplaysReport(MunkiReport):
 
                         data[self._SP_DISPLAYS_ATTRS_MAP.get(key, key)] = val
 
-            result.append(data)
+                result.append(data)
 
         return result
