@@ -45,11 +45,20 @@ class WiFiReport(MunkiReport):
             key, *val = line.strip().split(": ")
 
             if val:
-                result[self._clean_airport_key(key)] = "".join(val)
+                val = "".join(val)
+
+                # Attempt to convert stringified integers into actual int values
+                try:
+                    val = int(val)
+                except ValueError:
+                    pass
+
+                result[self._clean_airport_key(key)] = val
 
         rssi, noise = int(result.get("agrctlrssi", 0)), int(result.get("agrctlnoise", 0))
         result["snr"] = self._calc_snr(rssi, noise)
 
+        # Purposefully exclude BSSID values if present
         try:
             del result["bssid"]
         except KeyError:
